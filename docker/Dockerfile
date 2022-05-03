@@ -2,6 +2,10 @@
 # warning: base image name hardcoded, check it matches NAME_02 from source.sh
 FROM azure_kinect:02_eula
 
+# following two lines added by jufi - make sure the directory contains the downloaded libcudnn versions
+COPY docker/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb
+COPY docker/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
+
 RUN apt-get update && apt-get install -y \
     build-essential \
     rsync \
@@ -40,7 +44,9 @@ RUN apt-get update && apt-get install -y \
     uuid-dev
 
 
-# cudnn
+# cudnn - modified by jufi
+RUN dpkg -i libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb
+RUN dpkg -i libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libcudnn7=7.6.5.32-1+cuda10.2 \
     libcudnn7-dev=7.6.5.32-1+cuda10.2 \

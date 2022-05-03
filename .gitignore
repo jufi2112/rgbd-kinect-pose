@@ -14,3 +14,5 @@ src/config/server/renat2.yaml
 src/run_server2.sh
 
 *.pyc
+
+docker/libcudnn7*
