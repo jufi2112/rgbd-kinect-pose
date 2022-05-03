@@ -4,10 +4,18 @@ FROM nvidia/cudagl:10.2-devel-ubuntu18.04
 ENV TZ=Europe/Moscow
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+COPY ./cuda-keyring_1.0-1_all.deb cuda-keyring_1.0-1_all.deb
+
+RUN rm /etc/apt/sources.list.d/cuda.list && \
+    rm /etc/apt/sources.list.d/nvidia-ml.list && \
+    dpkg -i cuda-keyring_1.0-1_all.deb
+
 RUN apt-get update && \
-    apt-get install -y curl && \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    apt-get install -y curl    
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
     echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main" >> /etc/apt/sources.list && \
+    # echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" >> /etc/apt/sources.list && \
     apt-get update && \
     env DEBIAN_FRONTEND=noninteractive && \
     echo 'libk4a1.3 libk4a1.3/accepted-eula-hash string 0f5d5c5de396e4fee4c0753a21fee0c1ed726cf0316204edda484f08cb266d76' | debconf-set-selections && \
