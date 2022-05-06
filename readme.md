@@ -1,3 +1,6 @@
+Forked from the [original](https://github.com/rmbashirov/rgbd-kinect-pose) repository.
+Some additions were made, especially to documentation and dockerfiles, in order to allow for an unproblematic setup for reproduction.
+
 # Real-time RGBD-based Extended Body Pose Estimation
 
 This repository is a real-time demo for our [**paper**](https://arxiv.org/abs/2103.03663) that was published at [WACV 2021](http://wacv2021.thecvf.com/home) conference
@@ -34,6 +37,7 @@ Combined system runs at 30 fps on a 2080ti GPU and 8 core @ 4GHz CPU.
   - Build on your own: [run](./docker) 2 cmds
   - Or download docker image from [baidu](https://github.com/rmbashirov/rgbd-kinect-pose/issues/5#issuecomment-890992404)
 - Attach your Azure Kinect camera
+- From the Microsoft Azure Kinect SDK [repository](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/), you have to setup udev rules on your host machine. See the instruction provided at the bottom of [this](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/blob/develop/docs/usage.md) file 
 - Check your Azure Kinect camera is working inside Docker container:
   - Enter Docker container: `./run_local.sh` from `docker` dir
   - Then run `python -m pyk4a.viewer --vis_color --no_bt --no_depth` inside docker container
