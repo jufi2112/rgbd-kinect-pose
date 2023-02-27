@@ -3,8 +3,6 @@
 FROM azure_kinect:02_eula-cuda113
 
 # following two lines added by jufi - make sure the directory contains the downloaded libcudnn versions
-#COPY resources/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb /tmp/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb
-#COPY resources/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb /tmp/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb
 

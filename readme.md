@@ -39,7 +39,7 @@ Combined system runs at 30 fps on a 2080ti GPU and 8 core @ 4GHz CPU.
 - Attach your Azure Kinect camera
 - From the Microsoft Azure Kinect SDK [repository](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/), you have to setup udev rules on your host machine. See the instruction provided at the bottom of [this](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/blob/develop/docs/usage.md) file 
 - Check your Azure Kinect camera is working inside Docker container:
-  - Enter Docker container: `./run_local.sh` from `docker` dir
+  - Enter Docker container: `./run_local.sh -c [10, 11]` from `docker` dir
   - Then run `python -m pyk4a.viewer --vis_color --no_bt --no_depth` inside docker container
 
 
@@ -57,7 +57,7 @@ Combined system runs at 30 fps on a 2080ti GPU and 8 core @ 4GHz CPU.
 
 ### Run
 
-- Run demo: in `src` dir run `./run_server.sh`, the latter will enter docker container and will use [config file](./src/config/server/renat.yaml) where shape of the person is loaded from an external file: in our work we did not focus on person's shape estimation
+- Run demo: in `src` dir run `./run_server.sh -c [10, 11]`, the latter will enter docker container and will use [config file](./src/config/server/renat.yaml) where shape of the person is loaded from an external file: in our work we did not focus on person's shape estimation
 
 
 # What else
