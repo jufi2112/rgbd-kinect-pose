@@ -1,10 +1,11 @@
 # no cudnn here
 # warning: base image name hardcoded, check it matches NAME_02 from source.sh
-FROM azure_kinect:02_eula
+FROM azure_kinect:02_eula-cuda102
 
 # following two lines added by jufi - make sure the directory contains the downloaded libcudnn versions
-COPY docker/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb
-COPY docker/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
+# can't download via wget as one needs to login with an nvidia account
+COPY resources/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb /tmp/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb
+COPY resources/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb /tmp/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -45,13 +46,12 @@ RUN apt-get update && apt-get install -y \
 
 
 # cudnn - modified by jufi
-RUN dpkg -i libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb
-RUN dpkg -i libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libcudnn7=7.6.5.32-1+cuda10.2 \
-    libcudnn7-dev=7.6.5.32-1+cuda10.2 \
-    && apt-mark hold libcudnn7 && \
+RUN apt install --no-install-recommends -y /tmp/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb
+RUN apt install --no-install-recommends -y /tmp/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
+RUN apt-mark hold libcudnn7 && \
     rm -rf /var/lib/apt/lists/*
+RUN rm /tmp/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb && \
+    rm /tmp/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb
 
 
 # make tf==1.15 built for cuda 10.0 work with cuda 10.2
@@ -96,7 +96,8 @@ RUN pip install --upgrade pip && pip install numpy==1.19.2
 # azure sdk
 RUN git clone --recursive https://github.com/microsoft/Azure-Kinect-Sensor-SDK.git /opt/azure-sdk && \
     cd /opt/azure-sdk && \
-    git checkout 17b644560ce7b4ee7dd921dfff0ae811aa54ede6 && \
+    git checkout tags/v1.4.1 && \
+#    git checkout 17b644560ce7b4ee7dd921dfff0ae811aa54ede6 && \
     mkdir -p /etc/udev/rules.d && \
     cp ./scripts/99-k4a.rules /etc/udev/rules.d/ && \
     mkdir build && cd build && \
@@ -164,7 +165,7 @@ RUN cd /opt/opencv-4.2.0/build && \
 # pip installs torch with cuda 10.2 by default, cannot specify cuda version
 # use conda to install torch
 RUN conda install -y pytorch=1.7.1 torchvision=0.8.2 cudatoolkit=10.2 -c pytorch
-COPY requirements.txt /opt/requirements.txt
+COPY requirements_cuda102.txt /opt/requirements.txt
 RUN pip install --no-cache-dir -r /opt/requirements.txt
 
 
@@ -208,7 +209,7 @@ COPY extern/smplx_kinect /opt/smplx_kinect
 RUN cd /opt/smplx_kinect && ./setup.sh
 
 # face_expression to load face model
-RUN pip install --no-cache-dir --no-deps kornia==0.3.0
+RUN pip install --no-cache-dir --no-deps kornia==0.3.0	# TODO why is this fixed to 0.3.0?
 COPY extern/face_expression /opt/face_expression
 RUN cd /opt/face_expression && pip --no-cache-dir install .
 
@@ -217,6 +218,13 @@ COPY extern/minimal_hand /opt/minimal_hand
 RUN cd /opt/minimal_hand && pip --no-cache-dir install .
 
 ############## Install from extern folder ##############
+
+############## Update location of shared libraries #####
+# otherwise, libopencv is not found by k4a_module
+
+RUN sudo ldconfig
+
+############## Update location of shared libraries #####
 
 
 USER $USERNAME:$USERNAME

@@ -15,4 +15,5 @@ src/run_server2.sh
 
 *.pyc
 
-docker/libcudnn7*
+data
+output
