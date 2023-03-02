@@ -3,8 +3,8 @@
 FROM azure_kinect:02_eula-cuda113
 
 # following two lines added by jufi - make sure the directory contains the downloaded libcudnn versions
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb && \
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb
+#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb && \
+#    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -42,12 +42,14 @@ RUN apt-get update && apt-get install -y \
     uuid-dev
 
 # TODO make this use dpkg so we don't need to redownload libcudnn8
-RUN apt install --no-install-recommends -y ./libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb
-RUN apt install --no-install-recommends -y ./libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb
+RUN apt install --no-install-recommends -y libcudnn8=8.2.1.32-1+cuda11.3
+#./libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb
+RUN apt install --no-install-recommends -y libcudnn8-dev=8.2.1.32-1+cuda11.3
+#./libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb
 RUN apt-mark hold libcudnn8 && \
     rm -rf /var/lib/apt/lists/*
-RUN rm libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb && \
-    rm libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb
+#RUN rm libcudnn8_8.2.1.32-1+cuda11.3_amd64.deb && \
+#    rm libcudnn8-dev_8.2.1.32-1+cuda11.3_amd64.deb
 
 
 # make tf==1.15 built for cuda 10.0 work with cuda 10.2
@@ -100,6 +102,10 @@ RUN git clone --recursive https://github.com/microsoft/Azure-Kinect-Sensor-SDK.g
     cmake .. -GNinja && \
     ninja
 
+# azure body tracking sample projects
+RUN git clone https://github.com/microsoft/Azure-Kinect-Samples /opt/abt-samples && \
+    mkdir /opt/abt-samples/build && cd /opt/abt-samples/build && \
+    cmake .. -GNinja && ninja
 
 # opencv
 RUN apt update && \
