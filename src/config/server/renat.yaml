@@ -1,5 +1,5 @@
-data_dirpath: "/home/renat/data/rgbd-kinect-pose"
-output_dirpath: "/home/renat/Desktop/kavatar_test"
+data_dirpath: "/home/julien/git/rgbd-kinect-pose/data"
+output_dirpath: "/home/julien/git/rgbd-kinect-pose/output"
 
 
 aggregate:  # aggregate results from body, hand and face blocks
@@ -8,7 +8,7 @@ aggregate:  # aggregate results from body, hand and face blocks
   person_shape_path: "shapefit/renat"
   vis_pose:
     enable: True
-    imshow: True
+    imshow: False
     imsave: False
     scale: .2  # reduce resolution for real-time visualization
     device: "cuda:0"  # must be cuda: minimal_pytorch_rasterizer for mesh visualizaion does not support cpu
@@ -25,6 +25,13 @@ aggregate:  # aggregate results from body, hand and face blocks
     filter_jaw_pose: True  # filter single jaw joint
     filter_face_expression: True  # filter 10 face expression parameters
     fix_global: False
+  # added by Julien
+  send_to_server:
+    enable: True
+    host: "localhost"
+    port: 7777
+    auto_reconnect: False
+    sel_timeout: 0.01
 
 k4a: # kinect streaming block
   log_level: 2

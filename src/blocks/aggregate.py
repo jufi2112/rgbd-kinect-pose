@@ -12,6 +12,8 @@ import cv2
 import shutil
 import time
 import numpy as np
+import selectors
+import types
 
 from multiprocessing_pipeline import Assembler, Processor, Dissembler
 from multiprocessing_pipeline import QueueEl, QueueMsg, QueueData, MetaMsg
@@ -101,12 +103,18 @@ class AggregateProcessor(Processor):
         Processor.__init__(self, name, msg_queue, input_queue, output_queue, assembler_input_queue, **kwargs)
         self.data_dirpath = data_dirpath
         self.processor_config = processor_config
+        self.server_config = processor_config['send_to_server']
+        self.sock = None
+        self.sel = None
         self.log_level = processor_config.get('log_level', 2)
         self.pykinect_data_dp = pykinect_data_dp
         self.filterer_config = self.processor_config['filterer']
         self.filterer_config['body_models_dp'] = osp.join(
             self.pykinect_data_dp, 'body_models')
         self.output_dirpath = output_dirpath
+
+        if self.server_config['enable']:
+            self.connect_to_server()
 
         self.gender = self.processor_config['gender']
         self.beta = np.load(osp.join(
@@ -203,6 +211,33 @@ class AggregateProcessor(Processor):
         if self.dump_data is not None:
             self.dump_data.append(deepcopy(x))
 
+        if self.server_config['enable']:
+            if self.sock and self.sel:
+                full_body_pose = np.concatenate(
+                    (
+                        x['global_rot'],
+                        x['body_pose'],
+                        x['jaw_pose'],
+                        np.zeros(3),    # left eye
+                        np.zeros(3),    # right eye
+                        x['left_hand_pose'],
+                        x['right_hand_pose']
+                    ),
+                    axis=None
+                )
+                #print(list(x.keys()))
+                #print(f"Global rot shape: {x['global_rot'].shape}")
+                #print(f"Body pose shape: {x['body_pose'].shape}")
+                #print(f"Jaw pose shape: {x['jaw_pose'].shape}")
+                #print(f"Left hand pose: {x['left_hand_pose'].shape}")
+                #print(f"Right hand pose: {x['right_hand_pose'].shape}")
+                assert full_body_pose.shape == (165,), f"Full body pose shape is {full_body_pose.shape}"
+                events = self.sel.select(timeout=self.server_config['sel_timeout'])
+                for key, mask in events:
+                    self.service_connection(key, mask, full_body_pose)
+            elif self.server_config['auto_reconnect']:
+                self.connect_to_server()
+
         cur = time.time()
 
         if self.log_level >= 2:
@@ -219,3 +254,28 @@ class AggregateProcessor(Processor):
             with open(self.dump_fp, 'wb') as f:
                 pickle.dump(self.dump_data, f)
             print('poses dump done')
+
+    def connect_to_server(self):
+        self.sel = selectors.DefaultSelector()
+        server_addr = (self.server_config['host'], self.server_config['port'])
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setblocking(False)
+        if self.log_level >= 1:
+            print(f'Connecting to server at {server_addr}')
+        self.sock.connect_ex(server_addr)
+        events = selectors.EVENT_READ | selectors.EVENT_WRITE
+        data = None
+        self.sel.register(self.sock, events, data=data)
+
+    def service_connection(self, key, mask, full_body_pose):
+        if mask & selectors.EVENT_READ:
+            recv_data = self.sock.recv(1024)
+            if not recv_data:
+                if self.log_level >= 1:
+                    print(f"Server closed the connection")
+                self.sel.unregister(self.sock)
+                self.sock.close()
+                self.sel = None
+                self.sock = None
+        if mask & selectors.EVENT_WRITE:
+            self.sock.sendall(full_body_pose.tobytes())
