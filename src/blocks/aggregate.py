@@ -275,6 +275,7 @@ class AggregateProcessor(Processor):
                     print(f"Server closed the connection")
                 self.sel.unregister(self.sock)
                 self.sock.close()
+                self.sel.close()
                 self.sel = None
                 self.sock = None
         if mask & selectors.EVENT_WRITE:
