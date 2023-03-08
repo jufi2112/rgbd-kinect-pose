@@ -213,8 +213,9 @@ class AggregateProcessor(Processor):
 
         if self.server_config['enable']:
             if self.sock and self.sel:
-                full_body_pose = np.concatenate(
+                to_transmit = np.concatenate(
                     (
+                        x['global_trans'],
                         x['global_rot'],
                         x['body_pose'],
                         x['jaw_pose'],
@@ -224,17 +225,17 @@ class AggregateProcessor(Processor):
                         x['right_hand_pose']
                     ),
                     axis=None
-                )
+                ).astype(np.float32)
                 #print(list(x.keys()))
                 #print(f"Global rot shape: {x['global_rot'].shape}")
                 #print(f"Body pose shape: {x['body_pose'].shape}")
                 #print(f"Jaw pose shape: {x['jaw_pose'].shape}")
                 #print(f"Left hand pose: {x['left_hand_pose'].shape}")
                 #print(f"Right hand pose: {x['right_hand_pose'].shape}")
-                assert full_body_pose.shape == (165,), f"Full body pose shape is {full_body_pose.shape}"
+                #assert full_body_pose.shape == (165,), f"Full body pose shape is {full_body_pose.shape}"
                 events = self.sel.select(timeout=self.server_config['sel_timeout'])
                 for key, mask in events:
-                    self.service_connection(key, mask, full_body_pose)
+                    self.service_connection(key, mask, to_transmit)
             elif self.server_config['auto_reconnect']:
                 self.connect_to_server()
 

@@ -19,10 +19,6 @@ Combined system runs at 30 fps on a 2080ti GPU and 8 core @ 4GHz CPU.
 
 ### Build
 - Prereqs: your nvidia driver should support cuda 10.2, Windows or Mac are not supported.
-- Clone repo:
-  - `git clone https://github.com/rmbashirov/rgbd-kinect-pose.git`
-  - `cd rgbd-kinect-pose`
-  - `git submodule update --force --init --remote`
 - Docker setup:
   - [Install docker engine](https://docs.docker.com/engine/install/ubuntu/)
   - [Install nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
@@ -35,7 +31,7 @@ Combined system runs at 30 fps on a 2080ti GPU and 8 core @ 4GHz CPU.
   - **reboot**
 - Create docker image: 
   - Build on your own: [run](./docker) 2 cmds
-  - Or download docker image from [baidu](https://github.com/rmbashirov/rgbd-kinect-pose/issues/5#issuecomment-890992404)
+  - Or download docker image from [currently not available](TODO)
 - Attach your Azure Kinect camera
 - From the Microsoft Azure Kinect SDK [repository](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/), you have to setup udev rules on your host machine. See the instruction provided at the bottom of [this](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/blob/develop/docs/usage.md) file 
 - Check your Azure Kinect camera is working inside Docker container:
@@ -53,7 +49,8 @@ Combined system runs at 30 fps on a 2080ti GPU and 8 core @ 4GHz CPU.
 - Set `data_dirpath` and `output_dirpath` variables in [config file](./src/config/server/renat.yaml):
   - `data_dirpath` is a path to `/your/unpacked/dir`
   - `output_dirpath` is used to check timings or to store result images
-  - ensure these paths are visible inside docker container, set `VOLUMES` variable [here](https://github.com/rmbashirov/rgbd-kinect-pose/blob/b03818727b5101d572ebbc778d99d851bba2a40d/docker/run_local.sh#L5)
+  - ensure these paths are visible inside docker container, set `VOLUMES` variable [here](./docker/run_local.sh)
+  <!--(https://github.com/rmbashirov/rgbd-kinect-pose/blob/b03818727b5101d572ebbc778d99d851bba2a40d/docker/run_local.sh#L5)--!>
 
 ### Run
 

@@ -13,6 +13,12 @@ if [[ $cuda == "10" ]]
 then
 	echo "Building docker image with CUDA 10.2"
 	NAME_SUFFIX=$NAME_CUDA10
+	if [ -f "cuda-keyring_1.0-1_all.deb" ]; then
+		echo "Keyring file already exists, skipping download"
+	else
+		echo "Downloading CUDA Linux GPG repository keyring"
+		wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb
+	fi
 elif [[ $cuda == "11" ]]
 then
 	echo "Building docker image with CUDA 11.3"
