@@ -32,6 +32,8 @@ aggregate:  # aggregate results from body, hand and face blocks
     port: 7777
     auto_reconnect: False
     sel_timeout: 0.01
+    rotation_angle: 180
+    swap_yz: False
 
 k4a: # kinect streaming block
   log_level: 2

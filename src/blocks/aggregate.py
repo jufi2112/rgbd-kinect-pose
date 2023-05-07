@@ -12,8 +12,10 @@ import cv2
 import shutil
 import time
 import numpy as np
+import quaternion
 import selectors
 import types
+
 
 from multiprocessing_pipeline import Assembler, Processor, Dissembler
 from multiprocessing_pipeline import QueueEl, QueueMsg, QueueData, MetaMsg
@@ -150,6 +152,7 @@ class AggregateProcessor(Processor):
         self.index = -1
         self.output_count = 0
 
+
     def process_value(self, x):
         self.index += 1
 
@@ -213,10 +216,16 @@ class AggregateProcessor(Processor):
 
         if self.server_config['enable']:
             if self.sock and self.sel:
+                global_transl = x['global_trans']
+                if self.server_config['swap_yz']:
+                    global_transl = global_transl[[0,2,1]]
+                quat_global_orient = quaternion.from_rotation_vector(x['global_rot'])
+                quat_rotation_x = quaternion.from_rotation_vector(np.asarray([1,0,0])*np.deg2rad(self.server_config['rotation_angle']))
+                global_orient = quaternion.as_rotation_vector(quat_rotation_x * quat_global_orient)
                 to_transmit = np.concatenate(
                     (
-                        x['global_trans'],
-                        x['global_rot'],
+                        global_transl,
+                        global_orient,
                         x['body_pose'],
                         x['jaw_pose'],
                         np.zeros(3),    # left eye

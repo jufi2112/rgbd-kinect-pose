@@ -30,7 +30,7 @@ Combined system runs at 30 fps on a 2080ti GPU and 8 core @ 4GHz CPU.
     ```
   - **reboot**
 - Create docker image: 
-  - Build on your own: [run](./docker) 2 cmds
+  - Build on your own: [run](./docker/readme.md) 2 cmds
   - Or download docker image from [currently not available](TODO)
 - Attach your Azure Kinect camera
 - From the Microsoft Azure Kinect SDK [repository](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/), you have to setup udev rules on your host machine. See the instruction provided at the bottom of [this](https://github.com/microsoft/Azure-Kinect-Sensor-SDK/blob/develop/docs/usage.md) file 

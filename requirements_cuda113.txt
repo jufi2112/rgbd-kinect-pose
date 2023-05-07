@@ -21,3 +21,4 @@ chumpy==0.70
 wandb==0.9.7
 protobuf<=3.20.1
 pyglet==1.5.27
+numpy-quaternion
